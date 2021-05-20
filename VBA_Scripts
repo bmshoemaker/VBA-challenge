@@ -1,0 +1,78 @@
+Sub StockSummary()
+
+Dim Ticker As String
+Dim Opening, Closing As Double
+Dim Volume As Double
+Dim TickerSummary As Double
+Dim TickerRestart As Double
+Dim WS As Worksheet
+
+'Starting Worksheet Loop
+For Each WS In Worksheets
+
+    'Creating Column Titles
+    WS.Range("I1").Value = "Ticker"
+    WS.Range("J1").Value = "Yearly Change"
+    WS.Range("K1").Value = "Percent Change"
+    WS.Range("L1").Value = "Total Stock Volume"
+    WS.Columns("I:L").AutoFit
+          
+    'Assigning starting values
+    
+    TickerSummary = 2
+    Volume = 0
+    TickerRestart = 2
+    LastRow = WS.Cells(Rows.Count, 1).End(xlUp).Row
+      
+    For I = 2 To LastRow
+        
+        'Assigning cell values to variables
+        Ticker = WS.Cells(I, 1).Value
+        Volume = Volume + Cells(I, 7).Value
+        Opening = Cells(TickerRestart, 3)
+                
+        'Code for running until Ticker changes
+        If WS.Cells(I + 1, 1).Value <> WS.Cells(I, 1).Value Then
+            
+            WS.Cells(TickerSummary, 9).Value = Ticker
+            Closing = WS.Cells(I, 6)
+            WS.Cells(TickerSummary, 10).Value = Closing - Opening
+            
+            'Conditional formatting for Positive/Negative Yearly Change
+                If WS.Cells(TickerSummary, 10).Value < 0 Then
+                
+                    WS.Cells(TickerSummary, 10).Interior.ColorIndex = 3
+                    
+                ElseIf WS.Cells(TickerSummary, 10).Value > 0 Then
+                
+                    WS.Cells(TickerSummary, 10).Interior.ColorIndex = 4
+                    
+                End If
+            
+                'Code to fix dividing by 0 error
+                
+                If Opening = 0 Then
+                    WS.Cells(TickerSummary, 11).Value = 0
+                Else
+                    WS.Cells(TickerSummary, 11).Value = (Closing - Opening) / Opening
+                End If
+                
+                WS.Cells(TickerSummary, 11).NumberFormat = "0.00%"
+            
+            WS.Cells(TickerSummary, 12).Value = Volume
+            
+                
+            'Resest Volume Back to 0 for next set
+            
+             Volume = 0
+             TickerSummary = TickerSummary + 1
+             TickerRestart = I + 1
+        End If
+    
+    Next I
+    
+ Next
+ 
+End Sub
+
+
